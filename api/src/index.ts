@@ -1,7 +1,8 @@
+import "dotenv/config";
 import express, {Request, Response} from 'express';
 import userRoutes from './routes/userRoutes';
 import { authRouter } from './routes/auth';
-import { Pool } from 'pg';
+import { requireAuth, AuthRequest } from "./middleware/auth";
 import { pool } from './db';
 
 const app = express();
@@ -16,6 +17,21 @@ app.get('/',(req: Request, res: Response)=>{
 app.get('/health/db', async(_req, res)=>{
     const result = await pool.query("SELECT 1 AS ok");
     res.json({ db: result.rows[0].ok === 1 ? "connected" : "error" });
+})
+
+app.get("/plans",async(req, res)=>{
+    const result = await pool.query(
+        "SELECT id, name, price_monthly, price_yearly, currency FROM plans ORDER BY id"
+    )
+    res.json(result.rows);
+})
+
+app.get("/me",requireAuth, async(req: AuthRequest, res)=>{
+    const result = await pool.query(
+        "SELECT id, email, role, created_at FROM users WHERE id = $1",
+        [req.user!.id]
+    );
+    res.json(result.rows[0]);
 })
 
 app.use('/auth',authRouter)
