@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, {Request, Response} from 'express';
 import userRoutes from './routes/userRoutes';
 import { subscriptionRouter } from "./routes/subscriptions";
+import { adminRouter } from "./routes/admin";
 import { authRouter } from './routes/auth';
 import { requireAuth, AuthRequest } from "./middleware/auth";
 import { pool } from './db';
@@ -40,6 +41,7 @@ app.get("/me",requireAuth, async(req: AuthRequest, res)=>{
 app.use('/auth',authRouter);
 app.use('/user',userRoutes);
 app.use('/subscriptions',subscriptionRouter);
+app.use("/admin", adminRouter);
 //Add GET /health returning { "status": "ok" }. 
 app.get("/health", (_req, res) => {
 res.json({ status: "ok" });
