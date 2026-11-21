@@ -8,7 +8,7 @@ export const authRouter = Router();
 authRouter.post('/register',async(req, res)=>{
     const {email, password} = req.body;
 
-    if(!email || !password || password.length < 0){
+    if (!email || !password || password.length < 8) {
         return res
             .status(400)
             .json({ error: "Email and a password of at least 8 characters are required" });
@@ -19,7 +19,7 @@ authRouter.post('/register',async(req, res)=>{
             "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email",
             [email.toLowerCase(), passwordHash]
         );
-        res.status(200).json(result.rows[0]);
+        res.status(201).json(result.rows[0]);
     }catch(err: any){
         if(err.code === "23505"){
             return res.status(409).json({ error: "Email already registered" });
@@ -32,7 +32,7 @@ authRouter.post('/register',async(req, res)=>{
 authRouter.post("/login", async(req, res)=>{
     const {email, password} = req.body;
     if(!email || !password){
-        res.status(400).json({ error: "Email and password are required" });
+        return res.status(400).json({ error: "Email and password are required" });
     }
     try{
         const result = await pool.query(
