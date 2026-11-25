@@ -21,7 +21,7 @@ subscriptionRouter.post("/", requireAuth, async(req: AuthRequest, res)=>{
         const plan = planResult.rows[0];
         if(!plan){
             await client.query("ROLLBACK");
-            return res.status(409).json({error: "Plan not found"});
+            return res.status(404).json({ error: "Plan not found" });
         }
         
         const amount = billingCycle === "monthly" ? plan.price_monthly : plan.price_yearly;
